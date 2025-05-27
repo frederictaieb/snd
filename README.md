@@ -14,5 +14,7 @@ vim .env
 DATABASE_URL=
 ```
 
-## Launch Backend Server
+## Starting Backend Server
+```
 uvicorn app.main:app  
+```
