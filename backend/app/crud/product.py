@@ -12,12 +12,12 @@ def post_product(session: Session, product: ProductCreate) -> Product:
     return db_product
 
 def get_product(session: Session, product_name: str) -> Product | None:
-    query = select(Product).where(Product.name == product_name)
+    query = select(Product).where(Product.name == product_name, Product.is_deleted == False)
     return session.exec(query).first()
 
 
 def get_all_products(session: Session) -> list[Product]:
-    query = select(Product)
+    query = select(Product).where(Product.is_deleted == False)
     return list(session.exec(query).all())
 
 
@@ -38,8 +38,22 @@ def update_product(session: Session, product_name: str, product_update: ProductU
 
 def delete_product(session: Session, product_name: str) -> Product | None:
     product = get_product(session, product_name)
-    if product:
-        session.delete(product)
-        session.commit()
-        return product
-    return None
+    if not product:
+        return None
+    
+    product.is_deleted = True
+    session.add(product)
+    session.commit()
+    session.refresh(product)
+    return product
+
+def hard_delete_product(session: Session, product_name: str) -> dict:
+    query = select(Product).where(Product.name == product_name)
+    product_to_delete = session.exec(query).first()
+
+    if not product_to_delete:
+        return {"message": "Product not found"}
+    
+    session.delete(product_to_delete)
+    session.commit()
+    return {"message": f"Product '{product_name}' permanently deleted"}
