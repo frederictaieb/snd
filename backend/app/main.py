@@ -5,7 +5,7 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 
 from app.db.db_setup import create_db_and_tables
-from app.routers import product
+from app.routers import product, music
 
 logger = getLogger(__name__)
 basicConfig(level=INFO)
@@ -21,8 +21,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def get_app() -> FastAPI:
-    app = FastAPI(title="FastAPI Products", lifespan=lifespan)
+    app = FastAPI(title="FastAPI Snd", lifespan=lifespan)
     app.include_router(product.router)
+    app.include_router(music.router)
     return app
 
 
